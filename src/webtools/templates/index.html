@@ -1,0 +1,15 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Home {% endblock title %}
+
+{% block content %}
+	<div class="container">
+		<a href="{% url 'appsearch' %}">
+		<button type="button" class="btn btn-primary btn-lg">App Searcher</button>
+		</a>
+		<a href="{% url 'keywordfind' %}">
+		<button type="button" class="btn btn-secondary btn-lg">Keyword Finder</button>
+		</a>
+	</div>
+{% endblock content %}
