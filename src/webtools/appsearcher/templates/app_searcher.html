@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}App Searcher{% endblock %}
+
+{% block content %}
+    <h1 class="h4 mb-4">App Searcher</h1>
+
+    <form id="app-search-form">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-12 form-group">
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="play-store" name="store" value="google" class="custom-control-input"
+                           checked>
+                    <label class="custom-control-label" for="play-store">Play Store</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="app-store" name="store" value="apple" class="custom-control-input">
+                    <label class="custom-control-label" for="app-store">App Store</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-10 form-group">
+                <label class="sr-only" for="package-name">Package Name</label>
+                <input type="text" class="form-control" id="package-name" name="package_name" placeholder="Package Name"
+                       pattern="^([A-Za-z]{1}[A-Za-z\d_]*\.)+[A-Za-z][A-Za-z\d_]*$" required autofocus>
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="col-6 col-md-5 form-group" style="display: none;">
+                <label class="sr-only" for="application-name">Application Name</label>
+                <input type="text" class="form-control" id="application-name" name="app_name"
+                       placeholder="Application Name">
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="col-6 col-md-5 form-group" style="display: none;">
+                <label class="sr-only" for="application-id">Application Id</label>
+                <input type="number" class="form-control" id="application-id" name="app_id"
+                       placeholder="Application Id">
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="col-12 col-md-2 text-center text-md-right mb-3">
+                <button type="submit" class="btn btn-primary" id="send-data">Get Info</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="alert alert-danger" id="app-search-form-error" role="alert" style="display: none;"></div>
+
+    <div id="app-info" style="display: none;">
+        <div class="row">
+            <div class="col-12 col-sm-4 mb-3">
+                <span class="font-weight-bold">App Icon</span>
+                <div class="mt-1">
+                    <img src="" width="96px" height="96px" id="app-icon" alt="App icon">
+                </div>
+            </div>
+            <div class="col-6 col-sm-4 mb-3">
+                <span class="font-weight-bold">App Name</span>
+                <div id="app-name"></div>
+            </div>
+            <div class="col-6 col-sm-4 mb-3">
+                <span class="font-weight-bold">Developer Name</span>
+                <div id="developer-name"></div>
+            </div>
+            <div class="col-12 mb-3">
+                <span class="font-weight-bold">Description</span>
+                <div id="description"></div>
+            </div>
+            <div class="col-6 col-sm-4 mb-3">
+                <span class="font-weight-bold">No. of downloads</span>
+                <div id="total-downloads"></div>
+            </div>
+            <div class="col-6 col-sm-4 mb-3">
+                <span class="font-weight-bold">App Rating</span>
+                <div id="app-rating"></div>
+            </div>
+            <div class="col-6 col-sm-4 mb-3">
+                <span class="font-weight-bold">No. of reviews</span>
+                <div id="total-reviews"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        'use strict';
+
+        $(function () {
+            $('input[type=radio][name=store]').change(function () {
+                if ($(this).val() === 'google') {
+                    $('#application-name, #application-id').attr('required', false).val('').parent().hide();
+                    $('#package-name').attr('required', true).parent().show();
+                    $('#package-name').focus();
+                } else if ($(this).val() === 'apple') {
+                    $('#package-name').attr('required', false).val('').parent().hide();
+                    $('#application-name, #application-id').attr('required', true).parent().show();
+                    $('#application-name').focus();
+                }
+            });
+
+            $('#app-search-form').submit(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const form = $(this);
+                $.ajax({
+                    type: 'POST',
+                    url: '',
+                    data: form.serialize(),
+                    beforeSend: function () {
+                        $('#send-data').prop('disabled', true).text('Getting Info...');
+                        $('#app-search-form-error, #app-info').hide();
+                        $('#app-search-form-error, #app-name, #developer-name, #description, #total-downloads, #app-rating, #total-reviews').empty();
+                        $('#app-icon').attr('src', '');
+                        form.find('.is-invalid').removeClass('is-invalid');
+                    },
+                    complete: function () {
+                        $('#send-data').prop('disabled', false).text('Get Info');
+                    },
+                    success: function (response) {
+                        if (response['errors']) {
+                            Object.keys(response['errors']).forEach(function (key) {
+                                form.find('[name=' + key + ']').addClass('is-invalid').parent()
+                                    .find('.invalid-feedback').text(response['errors'][key].join(' '))
+                            });
+                            form.find('.is-invalid:first').focus();
+                        } else if (response['error_message']) {
+                            $('#app-search-form-error').text(response['error_message']).show();
+                        } else {
+                            $('#app-icon').attr('src', response['app_icon']);
+                            $('#app-name').text(response['app_name']);
+                            $('#developer-name').text(response['developer_name']);
+                            $('#description').text(response['description']);
+                            if ($('input[type=radio][name=store]:checked').val() === 'google') {
+                                $('#total-downloads').text(response['total_downloads']).parent().show();
+                            } else {
+                                $('#total-downloads').parent().hide();
+                            }
+                            $('#app-rating').text(response['app_rating']);
+                            $('#total-reviews').text(response['total_reviews']);
+                            $('#app-info').show();
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert('Oops. Something went wrong. Please try again later.');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

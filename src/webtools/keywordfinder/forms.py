@@ -1,12 +1,16 @@
 from django import forms
+from django.utils.translation import gettext as _
 
-	
-class URLForm(forms.Form):
-	url = forms.URLField(label='URL',
-						 widget=forms.URLInput(
-							 attrs={
-								 'class': 'form-control',
-								 'placeholder': 'Enter a URL',
-								 'name': 'url',
-								 'id': 'url'
-							 }))
+from keywordfinder.models import URL
+
+
+class URLForm(forms.ModelForm):
+    class Meta:
+        model = URL
+        fields = ['url']
+        error_messages = {
+            'url': {
+                'required': _('Please enter an url'),
+                'invalid': _('Please enter an valid url eg. https://www.google.com/')
+            }
+        }

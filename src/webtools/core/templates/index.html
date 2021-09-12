@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}WebTools{% endblock %}
+
+{% block css %}
+    <style>
+        blockquote {
+            border-left: .25em solid #e0e3e6;
+            color: #6a737d;
+            padding: 0 1em;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="h4 mb-4">App Searcher and Keywords Finder</h1>
+
+    <h2 class="h5 mb-3">About</h2>
+    <blockquote class="mb-4">
+        App searcher module is used to get information about apps on the Google Play Store and Apple App Store.<br>
+        Keyword searcher module is used to get all the keywords from the currently given url and show the recommended
+        url and keywords from the existing url.
+    </blockquote>
+
+    <h2 class="h5">Built With</h2>
+    <ul>
+        <li><a href="https://www.python.org/" target="_blank">Python</a> is a powerful general-purpose programming
+            language. It is used in web development, data science, creating software prototypes, and so on. Fortunately
+            for beginners, Python has simple easy-to-use syntax. This makes Python an excellent language to learn to
+            program for beginners.
+        </li>
+        <li><a href="https://www.djangoproject.com/" target="_blank">Django</a> is a free and open source high-level Web
+            framework that encourages rapid development and clean, pragmatic design.
+        </li>
+        <li><a href="https://getbootstrap.com/" target="_blank">Bootstrap</a> Quickly design and customize responsive
+            mobile-first sites with Bootstrap, the world’s most popular front-end open source toolkit, featuring Sass
+            variables and mixins, responsive grid system, extensive prebuilt components, and powerful JavaScript
+            plugins.
+        </li>
+        <li><a href="https://jquery.com/" target="_blank">jQuery</a> is a fast, small, and feature-rich JavaScript
+            library. It makes things like HTML document traversal and manipulation, event handling, animation, and Ajax
+            much simpler with an easy-to-use API that works across a multitude of browsers.
+        </li>
+    </ul>
+{% endblock %}

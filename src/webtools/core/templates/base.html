@@ -1,0 +1,42 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %} | WebTools</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS v4.5.0 -->
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+    <!-- Custom CSS -->
+    {% block css %}{% endblock %}
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <ul class="nav row my-2">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'core:index' %}">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'appsearcher:search_app' %}">App Searcher</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'keywordfinder:find_keyword' %}">Keywords Finder</a>
+        </li>
+    </ul>
+    <!-- END Header -->
+
+    <!-- Content -->
+    <div class="page-content">
+        {% block content %}{% endblock %}
+    </div>
+    <!-- END Content -->
+</div>
+
+<!-- jQuery v3.1.0 -->
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+<!-- Bootstrap Bundle v4.5.0 -->
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.js' %}"></script>
+<!-- Custom JavaScript -->
+{% block javascript %}{% endblock %}
+</body>
+</html>

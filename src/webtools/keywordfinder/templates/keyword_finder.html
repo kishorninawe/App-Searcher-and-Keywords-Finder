@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Keywords Finder{% endblock %}
+
+{% block content %}
+    <h1 class="h4 mb-4">Keywords Finder</h1>
+
+    <form id="find-keywords-form">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-12 col-md-8 col-lg-9 form-group">
+                <label class="sr-only" for="url">Package Name</label>
+                <input type="url" class="form-control" id="url" name="url" placeholder="Enter a url" required autofocus>
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3 text-center text-md-left mb-3">
+                <button type="submit" class="btn btn-primary" id="send-data">Get Keywords</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="alert alert-danger" id="find-keywords-form-error" role="alert" style="display: none;"></div>
+
+    <div class="row mt-2" id="keywords" style="display: none;">
+        <div class="col-12 mb-3">
+            <div class="font-weight-bold">URL Keywords</div>
+            <div id="url-keywords"></div>
+        </div>
+        <div class="col-12 mb-3">
+            <div class="font-weight-bold">Recommended Keywords</div>
+            <div id="recommended-keywords"></div>
+        </div>
+        <div class="col-12 mb-3">
+            <div class="font-weight-bold">Recommended URLs</div>
+            <div id="recommended-urls"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        'use strict';
+
+        $(function () {
+            $('#find-keywords-form').submit(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const form = $(this);
+                $.ajax({
+                    type: 'POST',
+                    url: '',
+                    data: form.serialize(),
+                    beforeSend: function () {
+                        $('#send-data').prop('disabled', true).text('Getting keywords...');
+                        $('#find-keywords-form-error, #keywords').hide();
+                        $('#find-keywords-form-error, #url-keywords, #recommended-keywords, #recommended-urls').empty();
+                        form.find('.is-invalid').removeClass('is-invalid');
+                    },
+                    complete: function () {
+                        $('#send-data').prop('disabled', false).text('Get keywords');
+                    },
+                    success: function (response) {
+                        if (response['errors']) {
+                            Object.keys(response['errors']).forEach(function (key) {
+                                form.find('[name=' + key + ']').addClass('is-invalid').parent()
+                                    .find('.invalid-feedback').text(response['errors'][key].join(' '))
+                            });
+                            form.find('.is-invalid:first').focus();
+                        } else if (response['error_message']) {
+                            $('#find-keywords-form-error').text(response['error_message']).show();
+                        } else {
+                            let urlKeywords = '';
+                            $.each(response['url_keywords'], function (index, value) {
+                                urlKeywords += '<li>' + value + '</li>';
+                            });
+                            $('#url-keywords').html('<ul class="mb-0">' + urlKeywords + '</ul>');
+
+                            if (response['recommended_keywords'].length > 0) {
+                                let recommendedKeywords = '';
+                                $.each(response['recommended_keywords'], function (index, value) {
+                                    recommendedKeywords += '<li>' + value + '</li>';
+                                });
+                                $('#recommended-keywords').html('<ul class="mb-0">' + recommendedKeywords + '</ul>');
+                            } else {
+                                $('#recommended-keywords').html('No recommended keywords found.')
+                            }
+
+                            if (response['recommended_urls'].length > 0) {
+                                let recommendedURLs = '';
+                                $.each(response['recommended_urls'], function (index, value) {
+                                    recommendedURLs += '<li><a href="' + value + '" target="_blank">' + value + '</a></li>';
+                                });
+                                $('#recommended-urls').html('<ul class="mb-0">' + recommendedURLs + '</ul>');
+                            } else {
+                                $('#recommended-urls').html('No recommended url found.')
+                            }
+
+                            $('#keywords').show();
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert('Oops. Something went wrong. Please try again later.');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
